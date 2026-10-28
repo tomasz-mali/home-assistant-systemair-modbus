@@ -1,0 +1,37 @@
+{
+  "entity": {
+    "button": {
+      "set_refresh": {
+        "name": "Refresh"
+      }
+    },
+    "select": {
+      "refresh_supply_level": {
+        "name": "Refresh – poziom nawiewu",
+        "state": {
+          "normal": "Normalny",
+          "high": "Wysoki",
+          "maximum": "Maksymalny"
+        }
+      },
+      "refresh_extract_level": {
+        "name": "Refresh – poziom wywiewu",
+        "state": {
+          "normal": "Normalny",
+          "high": "Wysoki",
+          "maximum": "Maksymalny"
+        }
+      }
+    },
+    "sensor": {
+      "refresh_remaining": {
+        "name": "Refresh – pozostały czas"
+      }
+    },
+    "number": {
+      "refresh_mode_duration": {
+        "name": "Refresh – czas trwania"
+      }
+    }
+  }
+}

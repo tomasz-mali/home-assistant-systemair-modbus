@@ -247,6 +247,12 @@ SAVE_BINARY_SENSOR_SOURCE_KEYS: set[str] = {
     "demand_control_enabled",
 }
 
+# SAVE registers represented by select entities instead of numeric sensors.
+SAVE_INTERNAL_SENSOR_KEYS: set[str] = {
+    "refresh_airflow_level_saf",
+    "refresh_airflow_level_eaf",
+}
+
 # SAVE diagnostics that should use translations even when disabled by default.
 SAVE_TRANSLATED_SENSOR_KEYS: set[str] = {
     "auto_mode_source",
@@ -283,6 +289,7 @@ DERIVED = [
     {"key": "regulation_mode_text", "icon": "mdi:tune-vertical"},
     {"key": "exhaust_air_flow_rate", "icon": "mdi:weather-windy", "unit": "m³/h"},
     {"key": "supply_air_flow_rate", "icon": "mdi:weather-windy", "unit": "m³/h"},
+    {"key": "refresh_remaining", "icon": "mdi:timer-outline", "unit": "min"},
 ]
 
 
@@ -307,6 +314,8 @@ async def async_setup_entry(
         if is_cd4 and _base_key(reg.key) in CD4_INTERNAL_SENSOR_KEYS:
             continue
         if not is_cd4 and _base_key(reg.key) in SAVE_BINARY_SENSOR_SOURCE_KEYS:
+            continue
+        if not is_cd4 and _base_key(reg.key) in SAVE_INTERNAL_SENSOR_KEYS:
             continue
 
         entities.append(SystemairRegisterSensor(coordinator, entry, reg))

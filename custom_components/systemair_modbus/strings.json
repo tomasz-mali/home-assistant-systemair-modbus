@@ -58,6 +58,22 @@
           "high": "High",
           "maximum": "Maximum"
         }
+      },
+      "refresh_supply_level": {
+        "name": "Refresh – supply fan level",
+        "state": {
+          "normal": "Normal",
+          "high": "High",
+          "maximum": "Maximum"
+        }
+      },
+      "refresh_extract_level": {
+        "name": "Refresh – extract fan level",
+        "state": {
+          "normal": "Normal",
+          "high": "High",
+          "maximum": "Maximum"
+        }
       }
     },
     "fan": {
@@ -179,6 +195,14 @@
       },
       "heater_type": {
         "name": "Heater type"
+      },
+      "refresh_remaining": {
+        "name": "Refresh remaining"
+      }
+    },
+    "button": {
+      "set_refresh": {
+        "name": "Refresh"
       }
     }
   }

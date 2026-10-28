@@ -23,7 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             IntNumber(entry, coordinator, client, "holiday_mode_duration", model.ADDR_HOLIDAY_DURATION_DAYS, 0, 365, 1, unit=UnitOfTime.DAYS),
             IntNumber(entry, coordinator, client, "away_mode_duration", model.ADDR_AWAY_DURATION_HOURS, 0, 720, 1, unit=UnitOfTime.HOURS),
             IntNumber(entry, coordinator, client, "crowded_mode_duration", model.ADDR_CROWDED_DURATION_HOURS, 0, 72, 1, unit=UnitOfTime.HOURS),
-            IntNumber(entry, coordinator, client, "refresh_mode_duration", model.ADDR_REFRESH_DURATION_MINUTES, 0, 120, 1, unit=UnitOfTime.MINUTES),
+            IntNumber(entry, coordinator, client, "refresh_mode_duration", model.ADDR_REFRESH_DURATION_MINUTES, 1, 240, 1, unit=UnitOfTime.MINUTES),
             Temp01CNumber(entry, coordinator, client, "eco_heat_offset", model.ADDR_ECO_HEAT_OFFSET_0_1C, -10.0, 10.0, 0.5, unit="°C"),
             Temp01CNumber(entry, coordinator, client, "supply_air_setpoint", model.ADDR_SUPPLY_AIR_SETPOINT_0_1C, 10.0, 30.0, 0.5, unit="°C"),
             IntNumber(entry, coordinator, client, "filter_replacement_period", model.ADDR_FILTER_REPLACEMENT_PERIOD, 1, 36, 1, unit=None),
