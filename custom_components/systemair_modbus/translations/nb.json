@@ -250,6 +250,9 @@
       },
       "heater_type": {
         "name": "Varmeelementtype"
+      },
+      "refresh_remaining": {
+        "name": "Oppfriskning – gjenstående tid"
       }
     },
     "switch": {
@@ -291,6 +294,22 @@
       },
       "manual_speed_command": {
         "name": "Manuell hastighet"
+      },
+      "refresh_supply_level": {
+        "name": "Oppfriskning – tilluftsnivå",
+        "state": {
+          "normal": "Normal",
+          "high": "Høy",
+          "maximum": "Maksimum"
+        }
+      },
+      "refresh_extract_level": {
+        "name": "Oppfriskning – avtrekksnivå",
+        "state": {
+          "normal": "Normal",
+          "high": "Høy",
+          "maximum": "Maksimum"
+        }
       }
     },
     "number": {
@@ -484,6 +503,9 @@
       },
       "filter_replaced": {
         "name": "Filter byttet"
+      },
+      "set_refresh": {
+        "name": "Oppfriskning"
       }
     },
     "fan": {

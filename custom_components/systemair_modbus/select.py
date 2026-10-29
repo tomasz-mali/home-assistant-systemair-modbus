@@ -34,6 +34,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if hasattr(model, "FREE_COOLING_MIN_SPEED_OPTIONS") and hasattr(model, "ADDR_FREE_COOLING_MIN_EAF"):
         entities.append(FreeCoolingMinEafSelect(entry, coordinator, client, model))
 
+    # Refresh fan levels (SAVE only)
+    if hasattr(model, "REFRESH_LEVEL_OPTIONS") and hasattr(model, "ADDR_REFRESH_LEVEL_SAF"):
+        entities.append(
+            RefreshLevelSelect(entry, coordinator, client, model, "refresh_supply_level", "refresh_airflow_level_saf", model.ADDR_REFRESH_LEVEL_SAF)
+        )
+    if hasattr(model, "REFRESH_LEVEL_OPTIONS") and hasattr(model, "ADDR_REFRESH_LEVEL_EAF"):
+        entities.append(
+            RefreshLevelSelect(entry, coordinator, client, model, "refresh_extract_level", "refresh_airflow_level_eaf", model.ADDR_REFRESH_LEVEL_EAF)
+        )
+
     if entities:
         async_add_entities(entities)
 
@@ -188,4 +198,40 @@ class FreeCoolingMinEafSelect(SystemairBaseEntity, SelectEntity):
         if option not in self._model.FREE_COOLING_MIN_SPEED_OPTIONS:
             raise HomeAssistantError("Invalid option")
         await self._client.write_register(self._model.ADDR_FREE_COOLING_MIN_EAF, self._model.FREE_COOLING_MIN_SPEED_OPTIONS[option])
+        await self.coordinator.async_request_refresh()
+
+class RefreshLevelSelect(SystemairBaseEntity, SelectEntity):
+    """Fan level (SAF or EAF) used while the unit is in Refresh mode."""
+
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_icon = "mdi:fan-clock"
+
+    def __init__(self, entry: ConfigEntry, coordinator, client, model, translation_key: str, data_key: str, address: int) -> None:
+        super().__init__(entry, coordinator)
+        self._client = client
+        self._model = model
+        self._data_key = data_key
+        self._address = address
+        self._attr_translation_key = translation_key
+        self._attr_unique_id = f"{entry.entry_id}_{translation_key}_select"
+        self._attr_options = list(model.REFRESH_LEVEL_OPTIONS.keys())
+
+    @property
+    def current_option(self) -> str | None:
+        raw = self.coordinator.data.get(self._data_key)
+        try:
+            v = int(float(raw))
+        except (TypeError, ValueError):
+            return None
+
+        inv = {val: key for key, val in self._model.REFRESH_LEVEL_OPTIONS.items()}
+        return inv.get(v)
+
+    async def async_select_option(self, option: str) -> None:
+        if option not in self._model.REFRESH_LEVEL_OPTIONS:
+            raise HomeAssistantError("Invalid option")
+        # Skip the write when the unit already has this level (limits Modbus writes).
+        if option == self.current_option:
+            return
+        await self._client.write_register(self._address, self._model.REFRESH_LEVEL_OPTIONS[option])
         await self.coordinator.async_request_refresh()

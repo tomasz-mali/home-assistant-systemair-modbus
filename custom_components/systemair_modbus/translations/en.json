@@ -250,6 +250,9 @@
       },
       "heater_type": {
         "name": "Heater type"
+      },
+      "refresh_remaining": {
+        "name": "Refresh remaining"
       }
     },
     "switch": {
@@ -291,6 +294,22 @@
       },
       "manual_speed_command": {
         "name": "Manual speed"
+      },
+      "refresh_supply_level": {
+        "name": "Refresh – supply fan level",
+        "state": {
+          "normal": "Normal",
+          "high": "High",
+          "maximum": "Maximum"
+        }
+      },
+      "refresh_extract_level": {
+        "name": "Refresh – extract fan level",
+        "state": {
+          "normal": "Normal",
+          "high": "High",
+          "maximum": "Maximum"
+        }
       }
     },
     "number": {
@@ -484,6 +503,9 @@
       },
       "filter_replaced": {
         "name": "Filter replaced"
+      },
+      "set_refresh": {
+        "name": "Refresh"
       }
     },
     "fan": {

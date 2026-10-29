@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+* SAVE Refresh mode (stage 1):
+  * `Refresh` button – starts Refresh and makes the unit fall back to Auto when the timer ends
+    (Auto is commanded first when the unit is in another mode, since SAVE returns to the previous mode).
+  * `Refresh – supply fan level` / `Refresh – extract fan level` selects (Normal / High / Maximum),
+    holding registers 1137 / 1138 (SAVE Modbus variable list rev36, written as 1136 / 1137).
+  * `Refresh remaining` sensor (minutes, 0 when Refresh is not active).
+* Partial Polish translation (new Refresh entities).
+
+### Changed
+
+* `Refresh duration` range is now 1–240 min (was 0–120), matching the SAVE register limits.
+
 ## [1.3.0] – 2026-09-12
 
 ### Added

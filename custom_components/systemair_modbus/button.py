@@ -4,6 +4,7 @@ Provides one-tap actions as entities so they are part of the integration (HACS-f
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.components.button import ButtonEntity
@@ -31,6 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         SetModeButton(entry, coordinator, client, model, translation_key="set_holiday", mode_label="Holiday"),
         SetModeButton(entry, coordinator, client, model, translation_key="set_party", mode_label="Party"),
         SetModeButton(entry, coordinator, client, model, translation_key="set_boost", mode_label="Boost"),
+        RefreshButton(entry, coordinator, client, model),
         # Manual speeds (forces Manual first)
         SetManualSpeedButton(entry, coordinator, client, model, translation_key="fan_low", speed_label="Low"),
         SetManualSpeedButton(entry, coordinator, client, model, translation_key="fan_normal", speed_label="Normal"),
@@ -68,6 +70,46 @@ class SetModeButton(_BaseActionButton):
 
         value = self._model.COMMAND_MODE_OPTIONS[self._mode_label]
         await self._client.write_register(self._model.ADDR_MODE_COMMAND, value)
+        await self.coordinator.async_request_refresh()
+
+
+class RefreshButton(_BaseActionButton):
+    """Start Refresh and make the unit fall back to Auto when it ends.
+
+    SAVE returns to the previously active mode when the Refresh timer expires,
+    so Auto is commanded first. "Boost" in this integration is the same SAVE
+    Refresh mode, but without the Auto fallback.
+    """
+
+    _attr_translation_key = "set_refresh"
+    _attr_icon = "mdi:shower-head"
+
+    # Give the controller time to process the Auto request before Refresh
+    # overwrites the same command register.
+    _MODE_SWITCH_DELAY_S = 2.0
+
+    def __init__(self, entry: ConfigEntry, coordinator, client, model) -> None:
+        super().__init__(entry, coordinator, client, model)
+        self._attr_unique_id = f"{entry.entry_id}_btn_set_refresh"
+
+    async def async_press(self) -> None:
+        auto_value = self._model.COMMAND_MODE_OPTIONS.get("Auto")
+        refresh_value = self._model.COMMAND_MODE_OPTIONS.get("Boost")
+        if auto_value is None or refresh_value is None:
+            raise HomeAssistantError("Model does not support Refresh mode command")
+
+        status_raw = self.coordinator.data.get("mode_status_register")
+        try:
+            status = int(float(status_raw))
+        except (TypeError, ValueError):
+            status = None
+
+        # Status 0 = Auto, 3 = Refresh: no Auto write needed before (re)starting Refresh.
+        if status not in (0, 3):
+            await self._client.write_register(self._model.ADDR_MODE_COMMAND, auto_value)
+            await asyncio.sleep(self._MODE_SWITCH_DELAY_S)
+
+        await self._client.write_register(self._model.ADDR_MODE_COMMAND, refresh_value)
         await self.coordinator.async_request_refresh()
 
 

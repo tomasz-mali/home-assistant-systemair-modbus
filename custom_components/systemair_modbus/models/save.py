@@ -50,6 +50,12 @@ class SaveModel:
     ADDR_REFRESH_DURATION_MINUTES = 1103
     ADDR_CROWDED_DURATION_HOURS = 1104
 
+    # Refresh (shown as "Boost" elsewhere in this integration) fan levels.
+    # Not in the 2017 SAVECair list; SAVE Modbus variable list rev36:
+    # REG_USERMODE_REFRESH_AIRFLOW_LEVEL_SAF / _EAF = 4x1137 / 4x1138 (-1 offset applied).
+    ADDR_REFRESH_LEVEL_SAF = 1136
+    ADDR_REFRESH_LEVEL_EAF = 1137
+
     ADDR_ECO_HEAT_OFFSET_0_1C = 2503
     ADDR_SUPPLY_AIR_SETPOINT_0_1C = 2000
 
@@ -132,6 +138,13 @@ class SaveModel:
         v: k for k, v in FREE_COOLING_MIN_SPEED_OPTIONS.items()
     }
 
+    # Refresh fan levels (rev36: min 3, max 5).
+    REFRESH_LEVEL_OPTIONS: dict[str, int] = {
+        "normal": 3,
+        "high": 4,
+        "maximum": 5,
+    }
+
     # Backwards-compatible aliases (older code used these names).
     MODE_COMMAND_OPTIONS = COMMAND_MODE_OPTIONS
     MODE_STATUS_TO_LABEL = STATUS_MODE_TO_LABEL
@@ -153,6 +166,8 @@ class SaveModel:
         RegisterDef(key='fireplace_mode_duration', address=1102, input_type='holding', data_type='uint16', unit='min'),
         RegisterDef(key='refresh_mode_duration', address=1103, input_type='holding', data_type='uint16', unit='min'),
         RegisterDef(key='crowded_mode_duration', address=1104, input_type='holding', data_type='uint16', unit='h'),
+        RegisterDef(key='refresh_airflow_level_saf', address=1136, input_type='holding', data_type='uint16'),
+        RegisterDef(key='refresh_airflow_level_eaf', address=1137, input_type='holding', data_type='uint16'),
         RegisterDef(key='countdown_mode_time', address=1110, input_type='input', data_type='uint32', unit='s'),
 
         # --- System status ---
@@ -382,6 +397,16 @@ class SaveModel:
             }.get(man, "manual_unknown")
         else:
             out["mode_status_text"] = SaveModel.STATUS_MODE_TO_KEY.get(mode, "unknown")
+
+        # ------------------------------------------------------------
+        # Refresh remaining time (minutes, 0 when Refresh is not active)
+        # Status 3 = Refresh (labelled "Boost" in this integration).
+        # ------------------------------------------------------------
+        if mode == 3:
+            remaining_s = max(_to_int(data.get("countdown_mode_time"), 0), 0)
+            out["refresh_remaining"] = -(-remaining_s // 60)
+        else:
+            out["refresh_remaining"] = 0
 
         # ------------------------------------------------------------
         # Estimated flow rates (m³/h)
